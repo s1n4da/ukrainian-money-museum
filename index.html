@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Музей українських грошей — Практична робота</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #f4f6f9;
+      color: #333;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #0056b3;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: #0056b3;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+    }
+
+    /* Фільтри епох */
+    .filter-btn {
+      background: #e9ecef;
+      border: 1px solid #ced4da;
+      padding: 8px 12px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: #0056b3;
+      color: white;
+      border-color: #0056b3;
+    }
+
+    /* Таймлайн / Картки монет */
+    .timeline-item {
+      border-left: 3px solid #0056b3;
+      padding-left: 15px;
+      margin-bottom: 15px;
+    }
+
+    .timeline-item h3 {
+      font-size: 16px;
+      color: #222;
+    }
+
+    .timeline-item .year {
+      font-size: 12px;
+      color: #777;
+      font-weight: bold;
+    }
+
+    /* Калькулятор */
+    .calc-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 400px;
+    }
+
+    .calc-form label {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .calc-form select, .calc-form input, .calc-form button {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .calc-form button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .calc-form button:hover {
+      background-color: #218838;
+    }
+
+    .result-box {
+      margin-top: 15px;
+      padding: 10px;
+      background: #e9f5ea;
+      border: 1px solid #c3e6cb;
+      border-radius: 4px;
+      display: none;
+    }
+
+    /* Чат-бот */
+    .chat-box {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      background: #fafafa;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .chat-msg {
+      margin-bottom: 8px;
+    }
+
+    .chat-msg.user {
+      text-align: right;
+      color: #0056b3;
+    }
+
+    .chat-msg.bot {
+      text-align: left;
+      color: #333;
+    }
+
+    .chat-input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-input-group input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .chat-input-group button {
+      padding: 8px 16px;
+      background: #0056b3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #777;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Диджитал-музей: Еволюція українських грошей</h1>
+    <p>Проєктна робота з розробки веб-ресурсів | Спеціальність 121</p>
+  </header>
+
+  <!-- Блок часової шкали (Frontend & UX/UI) -->
+  <div class="card">
+    <h2>1. Інтерактивна часова шкала (Timeline)</h2>
+    <div style="margin-bottom: 15px;">
+      <button class="filter-btn active" onclick="filterEra('all')">Усі періоди</button>
+      <button class="filter-btn" onclick="filterEra('kyiv')">Київська Русь</button>
+      <button class="filter-btn" onclick="filterEra('hetman')">Гетьманщина та УНР</button>
+      <button class="filter-btn" onclick="filterEra('modern')">Незалежна Україна</button>
+      <button class="filter-btn" onclick="filterEra('digital')">Цифрова ера</button>
+    </div>
+
+    <div id="timeline">
+      <!-- Элементы генерируются из JS -->
+    </div>
+  </div>
+
+  <!-- Блок калькулятора (Backend & Data Engineer) -->
+  <div class="card">
+    <h2>2. Калькулятор купівельної спроможності</h2>
+    <p style="font-size: 13px; margin-bottom: 10px; color: #555;">
+      Оберіть період та введіть суму, щоб дізнатися, що можна було придбати на ці гроші.
+    </p>
+
+    <div class="calc-form">
+      <label for="calc-era">Період:</label>
+      <select id="calc-era">
+        <option value="1918">1918 рік (100 карбованців УНР)</option>
+        <option value="1995">1995 рік (100 000 купоно-карбованців)</option>
+        <option value="1996">1996 рік (100 гривень після реформи)</option>
+      </select>
+
+      <label for="calc-amount">Сума:</label>
+      <input type="number" id="calc-amount" value="100" min="1">
+
+      <button onclick="calculatePower()">Розрахувати</button>
+    </div>
+
+    <div id="calc-result" class="result-box"></div>
+  </div>
+
+  <!-- Блок ИИ Чат-бота (EdTech & Content Lead) -->
+  <div class="card">
+    <h2>3. Історичний банкір (AI-консультант)</h2>
+    <div class="chat-box" id="chat-box">
+      <div class="chat-msg bot"><b>Банкір:</b> Вітаю! Я консультант музею. Запитайте мене про будь-яку монету чи банкноту в історії України!</div>
+    </div>
+    <div class="chat-input-group">
+      <input type="text" id="user-input" placeholder="Наприклад: Що таке златник?" onkeypress="handleKeyPress(event)">
+      <button onclick="sendMessage()">Надіслати</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>Розроблено в рамках навчального проєкту з веб-розробки | 2026</p>
+  </footer>
+
+</div>
+
+<script>
+  // JSON база данных монет и банкнот
+  const database = [
+    {
+      id: 1,
+      era: 'kyiv',
+      title: 'Срібник та Златник Володимира',
+      year: 'X–XI ст.',
+      desc: 'Перші карбовані монети Київської Русі. На лицевій стороні зображувався князь на троні та тризуб.',
+      security: 'Чеканка на дорогоцінному металі (золото/срібло).'
+    },
+    {
+      id: 2,
+      era: 'kyiv',
+      title: 'Слитки-гривні (Київський тип)',
+      year: 'XI–XIII ст.',
+      desc: 'Шестикутні срібні злитки вагою близько 160 грамів. Використовувалися для великих розрахунків.',
+      security: 'Стандартна вага та проба срібла.'
+    },
+    {
+      id: 3,
+      era: 'hetman',
+      title: 'Карбованці УНР',
+      year: '1917–1918 рр.',
+      desc: 'Перші паперові гроші України. Дизайн створив Георгій Нарбут. На них уперше зʼявився тризуб.',
+      security: 'Водяні знаки, унікальний орнамент.'
+    },
+    {
+      id: 4,
+      era: 'modern',
+      title: 'Гривня Незалежної України',
+      year: '1996 рік',
+      desc: 'Введена під час грошової реформи 2–16 вересня 1996 року. Заменила купоно-карбованці.',
+      security: 'Водяний знак, захисна стрічка, мікротекст.'
+    },
+    {
+      id: 5,
+      era: 'digital',
+      title: 'Електронна гривня (е-гривня)',
+      year: 'Сучасність / Проєкт',
+      desc: 'Цифрова форма гривні (CBDC) на технології Distributed Ledger (DLT / Blockchain).',
+      security: 'Криптографічний захист, блокчейн-реєстр.'
+    }
+  ];
+
+  // 1. Рендер таймлайна
+  function renderTimeline(filter = 'all') {
+    const container = document.getElementById('timeline');
+    container.innerHTML = '';
+
+    const filtered = filter === 'all' 
+      ? database 
+      : database.filter(item => item.era === filter);
+
+    filtered.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'timeline-item';
+      div.innerHTML = `
+        <h3>${item.title}</h3>
+        <span class="year">${item.year}</span>
+        <p>${item.desc}</p>
+        <p style="font-size: 12px; color: #555; margin-top: 5px;"><b>Ступені захисту / Особливість:</b> ${item.security}</p>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function filterEra(era) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    renderTimeline(era);
+  }
+
+  // 2. Логика калькулятора
+  function calculatePower() {
+    const era = document.getElementById('calc-era').value;
+    const amount = parseFloat(document.getElementById('calc-amount').value);
+    const resultDiv = document.getElementById('calc-result');
+
+    if (isNaN(amount) || amount <= 0) {
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = '<b style="color:red;">Будь ласка, введіть коректну суму.</b>';
+      return;
+    }
+
+    let text = '';
+    if (era === '1918') {
+      const bread = Math.floor(amount / 5);
+      text = `На ${amount} карбованців УНР у 1918 році можна було купити приблизно <b>${bread} хлібин</b> або кілька фунтів м'яса.`;
+    } else if (era === '1995') {
+      const bread = (amount / 40000).toFixed(1);
+      text = `У 1995 році (період гіперінфляції) на ${amount} купонів можна було купити близько <b>${bread} хлібин</b>.`;
+    } else if (era === '1996') {
+      const USD = (amount / 1.76).toFixed(2);
+      text = `У 1996 році ${amount} грн дорівнювали приблизно <b>$${USD} USD</b> (курс ~1.76 грн за долар).`;
+    }
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = text;
+  }
+
+  // 3. Логика ИИ чат-бота (простой имитатор для лабы)
+  function sendMessage() {
+    const input = document.getElementById('user-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const chatBox = document.getElementById('chat-box');
+    
+    // Сообщение юзера
+    const userMsg = document.createElement('div');
+    userMsg.className = 'chat-msg user';
+    userMsg.innerHTML = `<b>Ви:</b> ${escapeHtml(text)}`;
+    chatBox.appendChild(userMsg);
+
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Ответ бота
+    setTimeout(() => {
+      const botMsg = document.createElement('div');
+      botMsg.className = 'chat-msg bot';
+      
+      let answer = "Це цікаве питання з історії нумізматики України! На жаль, моя базова версія знає основні факти про Златники, Карбованці та Гривню 1996 року.";
+      
+      const lower = text.toLowerCase();
+      if (lower.includes('златник') || lower.includes('русь')) {
+        answer = "Златники та срібники чеканив князь Володимир Великий у X-XI століттях. Це були перші власні монети Руси.";
+      } else if (lower.includes('карбован')) {
+        answer = "Карбованці випускалися за часів УНР у 1917-1918 роках, а також як тимчасова валюта (купоно-карбованці) у 1992-1996 роках.";
+      } else if (lower.includes('гривня') || lower.includes('1996')) {
+        answer = "Гривня була введена в обіг 2 вересня 1996 року в результаті грошової реформи, замінивши купоно-карбованці у співвідношенні 1:100 000.";
+      }
+
+      botMsg.innerHTML = `<b>Банкір:</b> ${answer}`;
+      chatBox.appendChild(botMsg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }, 500);
+  }
+
+  function handleKeyPress(e) {
+    if (e.key === 'Enter') sendMessage();
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // Инициализация
+  renderTimeline();
+</script>
+
+</body>
+</html>
